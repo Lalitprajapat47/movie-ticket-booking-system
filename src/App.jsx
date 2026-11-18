@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Routes, Route, Link, NavLink, useNavigate } from 'react-router-dom'
 import { useApp } from './store.jsx'
 import { CITIES } from './data'
@@ -12,17 +13,28 @@ import About from './pages/About.jsx'
 import { NewsList, NewsDetail } from './pages/News.jsx'
 
 function Header() {
-  const { city, setCity } = useApp()
+  const { city, setCity, track } = useApp(); const nav = useNavigate()
+  const [q, setQ] = useState(''); const [open, setOpen] = useState(() => !localStorage.getItem('cb_cityset'))
+  const pick = c => { setCity(c); localStorage.setItem('cb_cityset', '1'); setOpen(false) }
+  const go = e => { e.preventDefault(); if (q.trim()) track('search', { q: q.trim() }); nav(`/movies?q=${encodeURIComponent(q)}`) }
   return (
     <header className="hdr">
       <div className="hin">
         <Link to="/" className="logo">Cine<b>Book</b></Link>
-        <nav>
-          {[['/', 'Home'], ['/movies', 'Movies'], ['/showtimes', 'Showtimes'], ['/insights', 'For You'], ['/tickets', 'My Tickets'], ['/news', 'News'], ['/about', 'About']].map(([to, l]) =>
-            <NavLink key={to} to={to} end={to === '/'}>{l}</NavLink>)}
-        </nav>
-        <select aria-label="City" value={city} onChange={e => setCity(e.target.value)}>{CITIES.map(c => <option key={c}>{c}</option>)}</select>
+        <form className="hsearch" onSubmit={go}><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search for movies, genres and more" aria-label="Search movies" /><button aria-label="Search">🔍</button></form>
+        <button className="citybtn" onClick={() => setOpen(true)}>📍 {city} ▾</button>
+        <button className="btn sm">Sign in</button>
       </div>
+      <nav className="hnav"><div className="hn">
+        {[['/', 'Home'], ['/movies', 'Movies'], ['/showtimes', 'Showtimes'], ['/insights', 'For You'], ['/tickets', 'My Tickets'], ['/news', 'News'], ['/about', 'About']].map(([to, l]) =>
+          <NavLink key={to} to={to} end={to === '/'}>{l}</NavLink>)}
+      </div></nav>
+      {open && <div className="modal" onClick={() => setOpen(false)}>
+        <div className="cities" onClick={e => e.stopPropagation()}>
+          <h3>Select your city</h3>
+          <div className="chips">{CITIES.map(c => <button key={c} className={c === city ? 'chip on' : 'chip'} onClick={() => pick(c)}>{c}</button>)}</div>
+        </div>
+      </div>}
     </header>
   )
 }
