@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import MovieCard from '../components/MovieCard.jsx'
-import { MOVIES, GENRES, OFFERS } from '../data'
+import { MOVIES, GENRES, OFFERS, byId } from '../data'
+import Poster from '../components/Poster.jsx'
 import { useApp } from '../store.jsx'
 export default function Home() {
   const [q, setQ] = useState(''); const nav = useNavigate(); const { track, city } = useApp()
@@ -10,6 +11,7 @@ export default function Home() {
   const go = e => { e.preventDefault(); if (q.trim()) track('search', { q: q.trim() }); nav(`/movies?q=${encodeURIComponent(q)}`) }
   return (<>
     <section className="hero">
+      <div className="hp" aria-hidden="true">{[1, 6, 2, 7].map((id, i) => <div key={id} className={`hpc hp${i}`}><Poster m={byId(id)} /></div>)}</div>
       <h1>Tonight’s film,<br />your seat, sorted.</h1>
       <p>Showing now in {city}. Search a movie, pick a cinema, choose your seats.</p>
       <form onSubmit={go}><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search movies or genres" aria-label="Search movies" /><button className="btn">Search</button></form>
