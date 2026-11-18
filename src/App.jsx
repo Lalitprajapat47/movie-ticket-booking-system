@@ -15,21 +15,25 @@ function Header() {
   const { city, setCity } = useApp()
   return (
     <header className="hdr">
-      <Link to="/" className="logo">Cine<b>Book</b></Link>
-      <nav>
-        {[['/', 'Home'], ['/movies', 'Movies'], ['/showtimes', 'Showtimes'], ['/insights', 'For You'], ['/tickets', 'My Tickets'], ['/news', 'News'], ['/about', 'About']].map(([to, l]) =>
-          <NavLink key={to} to={to} end={to === '/'}>{l}</NavLink>)}
-      </nav>
-      <select aria-label="City" value={city} onChange={e => setCity(e.target.value)}>{CITIES.map(c => <option key={c}>{c}</option>)}</select>
+      <div className="hin">
+        <Link to="/" className="logo">Cine<b>Book</b></Link>
+        <nav>
+          {[['/', 'Home'], ['/movies', 'Movies'], ['/showtimes', 'Showtimes'], ['/insights', 'For You'], ['/tickets', 'My Tickets'], ['/news', 'News'], ['/about', 'About']].map(([to, l]) =>
+            <NavLink key={to} to={to} end={to === '/'}>{l}</NavLink>)}
+        </nav>
+        <select aria-label="City" value={city} onChange={e => setCity(e.target.value)}>{CITIES.map(c => <option key={c}>{c}</option>)}</select>
+      </div>
     </header>
   )
 }
 const Footer = () => (
   <footer className="ftr">
-    <div><b>CineBook</b><p>Book movie tickets in a few taps.</p></div>
-    <div><Link to="/movies">Movies</Link><Link to="/showtimes">Showtimes</Link><Link to="/tickets">My Tickets</Link></div>
-    <div><Link to="/about">About us</Link><Link to="/news">News &amp; Blog</Link><Link to="/insights">Recommendations</Link></div>
-    <small>© 2026 CineBook. Frontend demo project.</small>
+    <div className="fin">
+      <div><b className="flogo">CineBook</b><p>Book movie tickets in a few taps.</p></div>
+      <div><h4>Explore</h4><Link to="/movies">Movies</Link><Link to="/showtimes">Showtimes</Link><Link to="/tickets">My Tickets</Link></div>
+      <div><h4>Company</h4><Link to="/about">About us</Link><Link to="/news">News &amp; Blog</Link><Link to="/insights">Recommendations</Link></div>
+    </div>
+    <div className="fcopy">© 2026 CineBook. Frontend demo project.</div>
   </footer>
 )
 export default function App() {
