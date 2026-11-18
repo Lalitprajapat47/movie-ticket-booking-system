@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { byId } from '../data'
 import { useApp } from '../store.jsx'
+import Poster from '../components/Poster.jsx'
 import ShowPicker from '../components/ShowPicker.jsx'
 const REVIEWS = [['Ananya', 5, 'Loved every minute. Go for the biggest screen.'], ['Rahul', 4, 'Great story and music, slightly long.'], ['Sameer', 4, 'Solid performances all around.']]
 export default function Details() {
@@ -10,7 +11,7 @@ export default function Details() {
   if (!m) return <div className="wrap"><h1>Movie not found</h1><Link to="/movies" className="btn">Browse movies</Link></div>
   return (<>
     <section className="mhero" style={{ background: m.bg }}>
-      <div className="mposter" style={{ background: m.bg }}>{m.title}</div>
+      <div className="mposter"><Poster m={m} /><span className="pt">{m.title}</span></div>
       <div>
         <h1>{m.title}</h1>
         <p>{m.genres.join(', ')} · {m.dur} · {m.lang}</p>
@@ -22,7 +23,7 @@ export default function Details() {
     <div className="wrap">
       {trailer && <div className="modal" onClick={() => setTrailer(false)}><div className="player" style={{ background: m.bg }}><h3>{m.title} – Official Trailer</h3><p>Trailer preview (demo)</p><button className="btn">Close</button></div></div>}
       <h2>Gallery</h2>
-      <div className="gal">{[0, 1, 2].map(i => <div key={i} style={{ background: m.bg, filter: `hue-rotate(${i * 40}deg)` }}>Still {i + 1}</div>)}</div>
+      <div className="gal">{['center', 'top', 'bottom'].map((o, i) => <div key={i}><div className="gz" style={{ transformOrigin: `50% ${o === 'center' ? '50%' : o === 'top' ? '10%' : '90%'}`, transform: `scale(${i ? 1.9 : 1.1})` }}><Poster m={m} /></div></div>)}</div>
       <h2>Cast</h2>
       <div className="chips">{m.cast.map(c => <span key={c} className="chip">{c}</span>)}</div>
       <h2>Reviews</h2>
