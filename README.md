@@ -1,6 +1,15 @@
-# CineBook – Online Movie Ticket Booking System (React.js, Frontend Only)
-Run:  npm install  &&  npm run dev   (open http://localhost:5173)
-Pages: Home, Movies (/movies), Details (/movie/:id), Showtimes (/showtimes), Seat Booking (/book/:id),
-AI Dashboard (/insights), My Tickets (/tickets), About (/about), News & Blog (/news, /news/:id)
-AI feature: simulated events (search, genre, view, trailer, cinema, showtime, seat, intent, booking) are stored in localStorage
-and analysed on /insights. Use "Load demo activity" there to see it instantly.
+# CineBook – Online Movie Ticket Booking System
+
+movie-ticket-booking/
+  frontend/   React + Vite (UI)          -> http://localhost:5173
+  backend/    Node + Express (REST API)  -> http://localhost:4000
+
+## Run (2 terminals)
+Terminal 1:  cd backend  && npm install && npm start
+Terminal 2:  cd frontend && npm install && npm run dev
+
+## Or run both together from this folder
+npm run install:all
+npm run dev
+
+Backend saves data in backend/db.json (created automatically).

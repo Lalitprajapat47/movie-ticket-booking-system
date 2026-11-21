@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '../store.jsx'
+import { api } from '../api.js'
 import { analyze, demoEvents, STAGES, stageLabel } from '../ai'
 import MovieCard from '../components/MovieCard.jsx'
 const Bars = ({ title, rows, empty = 'No data yet' }) => {
@@ -12,7 +13,7 @@ export default function Insights() {
     <div className="wrap">
       <h1>Your viewing insights</h1>
       <p className="dim">Built from your activity in this app: {a.total} events tracked.</p>
-      <div className="chips"><button className="btn" onClick={() => setEvents(demoEvents())}>Load demo activity</button><button className="btn alt" onClick={() => setEvents([])}>Clear activity</button></div>
+      <div className="chips"><button className="btn" onClick={() => { const d = demoEvents(); setEvents(d); api('/events', { method: 'PUT', body: { events: d } }).catch(() => {}) }}>Load demo activity</button><button className="btn alt" onClick={() => { setEvents([]); api('/events', { method: 'PUT', body: { events: [] } }).catch(() => {}) }}>Clear activity</button></div>
       <div className="panel"><h3>Your journey</h3>
         <div className="journey">{STAGES.map((s, i) => <span key={s} className={i <= a.reached ? 'step on' : 'step'}>{stageLabel(s)}</span>)}</div>
       </div>

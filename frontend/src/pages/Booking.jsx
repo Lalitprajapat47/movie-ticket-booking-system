@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { byId, CINEMAS, SEAT_CATS, COUPONS } from '../data'
 import { useApp } from '../store.jsx'
+import { api } from '../api.js'
 const ROWS = 'ABCDEFGH'.split(''), COLS = Array.from({ length: 10 }, (_, i) => i + 1)
 const catOf = r => Object.entries(SEAT_CATS).find(([, v]) => v.rows.includes(r))[0]
 const taken = (r, n) => (ROWS.indexOf(r) * 7 + n * 3) % 5 === 0
@@ -10,6 +11,8 @@ export default function Booking() {
   const m = byId(id); const cin = CINEMAS.find(c => c.id === +sp.get('c')); const date = sp.get('d'), time = sp.get('t'), fmt = sp.get('f')
   const [qty, setQty] = useState(2), [sel, setSel] = useState([]), [cat, setCat] = useState('All'), [code, setCode] = useState(''), [off, setOff] = useState(0), [msg, setMsg] = useState(''), [pay, setPay] = useState('UPI'), [done, setDone] = useState(null)
   useEffect(() => { if (sel.length && sel.length === qty) track('intent', { movieId: +id }) }, [sel.length === qty && sel.length > 0])
+  const loadBooked = () => api(`/seats?movieId=${id}&cinemaId=${sp.get('c')}&date=${date}&time=${encodeURIComponent(time || '')}`).then(d => setBooked(d.booked)).catch(() => {})
+  useEffect(() => { loadBooked() }, [id])
   if (!m || !cin) return <div className="wrap"><h1>Choose a showtime first</h1><button className="btn" onClick={() => nav('/showtimes')}>Pick showtime</button></div>
   const toggle = s => {
     if (sel.includes(s)) return setSel(sel.filter(x => x !== s))
@@ -18,9 +21,16 @@ export default function Booking() {
   }
   const sub = sel.reduce((a, s) => a + SEAT_CATS[catOf(s[0])].price, 0), total = Math.round(sub * (1 - off))
   const apply = () => { const v = COUPONS[code.trim().toUpperCase()]; if (v) { setOff(v); setMsg(`Coupon applied: ${v * 100}% off`) } else { setOff(0); setMsg('Invalid coupon. Try FIRST50 or MOVIE20.') } }
-  const confirm = () => {
-    const t = { id: 'CB' + Date.now().toString().slice(-7), movieId: m.id, title: m.title, cinema: cin.name, city: cin.city, date, time, fmt, seats: sel, total, pay }
-    setTickets(x => [t, ...x]); track('booking', { movieId: m.id }); setDone(t)
+  const confirm = async () => {
+    setBusy(true)
+    try {
+      const t = await api('/bookings', { method: 'POST', body: { movieId: m.id, cinemaId: cin.id, date, time, fmt, seats: sel, pay, coupon: off ? code : '' } })
+      setTickets(x => [t, ...x]); track('booking', { movieId: m.id }); setDone(t)
+    } catch (e) {
+      setMsg(e.status ? e.message : 'Cannot reach the server. Start it with: npm run server')
+      if (e.status === 409) { setSel([]); loadBooked() }
+    }
+    setBusy(false)
   }
   if (done) return <div className="wrap center"><h1>Booking confirmed 🎉</h1><div className="ticket"><b>{done.title}</b><p>{done.cinema}, {done.city}</p><p>{done.date} · {done.time} · {done.fmt}</p><p>Seats: {done.seats.join(', ')}</p><p>Paid ₹{done.total} via {done.pay}</p><code>{done.id}</code></div><button className="btn" onClick={() => nav('/tickets')}>View my tickets</button></div>
   return (
@@ -32,7 +42,7 @@ export default function Booking() {
             {['All', ...Object.keys(SEAT_CATS)].map(c => <button key={c} className={cat === c ? 'chip on' : 'chip'} onClick={() => setCat(c)}>{c}{c !== 'All' && ` ₹${SEAT_CATS[c].price}`}</button>)}</div>
           <div className="screen">Screen this way</div>
           <div className="seats">{ROWS.map(r => <div key={r} className="row"><span>{r}</span>{COLS.map(n => {
-            const s = r + n, tk = taken(r, n), dim = cat !== 'All' && catOf(r) !== cat
+            const s = r + n, tk = taken(r, n) || booked.includes(r + n), dim = cat !== 'All' && catOf(r) !== cat
             return <button key={s} aria-label={`Seat ${s} ${catOf(r)}`} disabled={tk || dim} onClick={() => toggle(s)} className={`seat c${catOf(r)} ${tk ? 'tk' : ''} ${sel.includes(s) ? 'sel' : ''}`} />
           })}</div>)}</div>
           <p className="legend dim">Available · Selected · Booked</p>
@@ -46,7 +56,7 @@ export default function Booking() {
           <h4>Payment method</h4>
           {['UPI', 'Credit / Debit card', 'Net banking', 'Wallet'].map(p => <label key={p} className="radio"><input type="radio" checked={pay === p} onChange={() => setPay(p)} />{p}</label>)}
           {msg && <p className="note" role="status">{msg}</p>}
-          <button className="btn full" disabled={sel.length !== qty} onClick={confirm}>{sel.length === qty ? `Pay ₹${total}` : `Select ${qty - sel.length} more seat${qty - sel.length > 1 ? 's' : ''}`}</button>
+          <button className="btn full" disabled={sel.length !== qty || busy} onClick={confirm}>{sel.length === qty ? `Pay ₹${total}` : `Select ${qty - sel.length} more seat${qty - sel.length > 1 ? 's' : ''}`}</button>
         </aside>
       </div>
     </div>

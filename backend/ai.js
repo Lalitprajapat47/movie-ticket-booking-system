@@ -1,4 +1,4 @@
-import { MOVIES, byId, CINEMAS } from './data'
+import { MOVIES, byId, CINEMAS } from './data.js'
 const bump = (o, k, n = 1) => { if (k) o[k] = (o[k] || 0) + n }
 const top = (o, n = 5) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n)
 const bucket = (t) => { const [h, rest] = t.split(':'); let H = +h % 12; if (t.includes('PM')) H += 12; return H < 12 ? 'Morning' : H < 17 ? 'Afternoon' : H < 20 ? 'Evening' : 'Night' }

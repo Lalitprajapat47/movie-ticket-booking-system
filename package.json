@@ -1,9 +1,9 @@
 {
-  "name": "movie-ticket-booking",
+  "name": "cinebook",
   "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" },
-  "dependencies": { "react": "^18.3.1", "react-dom": "^18.3.1", "react-router-dom": "^6.26.2" },
-  "devDependencies": { "@vitejs/plugin-react": "^4.3.1", "vite": "^5.4.8" }
+  "scripts": {
+    "install:all": "npm --prefix frontend install && npm --prefix backend install && npm install",
+    "dev": "concurrently -n web,api \"npm --prefix frontend run dev\" \"npm --prefix backend start\""
+  },
+  "devDependencies": { "concurrently": "^9.0.1" }
 }
