@@ -7,7 +7,7 @@ export const clientId = () => {
 export async function api(path, opts = {}) {
   const r = await fetch('/api' + path, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'x-client-id': clientId(), ...opts.headers },
+    headers: { 'Content-Type': 'application/json', 'x-client-id': clientId(), ...(localStorage.getItem('cb_token') ? { Authorization: 'Bearer ' + localStorage.getItem('cb_token') } : {}), ...opts.headers },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   })
   const data = await r.json().catch(() => ({}))
