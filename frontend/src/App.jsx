@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, Link, NavLink, useNavigate } from 'react-router-dom'
 import { useApp } from './store.jsx'
 import { CITIES } from './data'
+import AuthModal from './components/AuthModal.jsx'
 import Home from './pages/Home.jsx'
 import Listing from './pages/Listing.jsx'
 import Details from './pages/Details.jsx'
@@ -13,7 +14,7 @@ import About from './pages/About.jsx'
 import { NewsList, NewsDetail } from './pages/News.jsx'
 
 function Header() {
-  const { city, setCity, track } = useApp(); const nav = useNavigate()
+  const { city, setCity, track, user, logout } = useApp(); const nav = useNavigate(); const [auth, setAuth] = useState(false)
   const [q, setQ] = useState(''); const [open, setOpen] = useState(() => !localStorage.getItem('cb_cityset'))
   const pick = c => { setCity(c); localStorage.setItem('cb_cityset', '1'); setOpen(false) }
   const go = e => { e.preventDefault(); if (q.trim()) track('search', { q: q.trim() }); nav(`/movies?q=${encodeURIComponent(q)}`) }
@@ -23,12 +24,13 @@ function Header() {
         <Link to="/" className="logo">Cine<b>Book</b></Link>
         <form className="hsearch" onSubmit={go}><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search for movies, genres and more" aria-label="Search movies" /><button aria-label="Search">🔍</button></form>
         <button className="citybtn" onClick={() => setOpen(true)}>📍 {city} ▾</button>
-        <button className="btn sm">Sign in</button>
+        {user ? <div className="usr"><span>Hi, {user.name.split(' ')[0]}</span><button className="btn sm alt" onClick={logout}>Sign out</button></div> : <button className="btn sm" onClick={() => setAuth(true)}>Sign in</button>}
       </div>
       <nav className="hnav"><div className="hn">
         {[['/', 'Home'], ['/movies', 'Movies'], ['/showtimes', 'Showtimes'], ['/insights', 'For You'], ['/tickets', 'My Tickets'], ['/news', 'News'], ['/about', 'About']].map(([to, l]) =>
           <NavLink key={to} to={to} end={to === '/'}>{l}</NavLink>)}
       </div></nav>
+      {auth && <AuthModal onClose={() => setAuth(false)} />}
       {open && <div className="modal" onClick={() => setOpen(false)}>
         <div className="cities" onClick={e => e.stopPropagation()}>
           <h3>Select your city</h3>
